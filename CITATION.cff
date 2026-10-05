@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+title: >-
+  Standing, Not Truth: Who May Say What About Whom in Agentic Selection
+  (research artifact)
+message: If you use this artifact, please cite the paper and this artifact.
+type: software
+authors:
+  - given-names: Yedidel
+    family-names: Louck
+    affiliation: Ariel University
+    orcid: https://orcid.org/0009-0008-5836-8736
+  - given-names: Ariel
+    family-names: Stulman
+    affiliation: Jerusalem College of Technology
+    orcid: https://orcid.org/0000-0003-1191-007X
+  - given-names: Amit
+    family-names: Dvir
+    affiliation: Ariel University
+    orcid: https://orcid.org/0000-0002-3670-0784
+abstract: >-
+  Experiment code for a study of premise attacks on agentic selection: whether
+  a false factual claim about a competitor, carrying no instruction and
+  published by a lawful participant, moves an LLM agent's choice, and where a
+  defense must be placed to separate it from benign traffic. The stored model
+  responses, hand labels and append-only ledgers are published as a separate
+  data release.
+keywords:
+  - LLM agents
+  - agentic AI
+  - prompt injection
+  - authorization
+  - trust and provenance
+license: MIT
+repository-code: https://github.com/yedidel/standing-not-truth

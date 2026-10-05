@@ -1,0 +1,4 @@
+# A shell script checked out with CRLF fails with "bad interpreter".
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
