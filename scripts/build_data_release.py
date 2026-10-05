@@ -44,6 +44,9 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "experiments"
 DEST = ROOT / "dist" / "huggingface"
 
+CR_LF = chr(13) + chr(10)
+LF = chr(10)
+
 # Data, and the per-experiment record needed to read it.
 KEEP_SUFFIX = {".json", ".jsonl", ".md", ".txt", ".csv"}
 
@@ -167,7 +170,12 @@ def main() -> int:
         src, dst = SRC / rel, DEST / "experiments" / rel
         raw = src.read_bytes()
         if rel.suffix == ".md":
-            text, hits = scrub(raw.decode("utf-8", errors="replace"))
+            # Forty-one of the sources use CRLF. A pattern that ends on a
+            # blank line silently fails on those and publishes the paragraph
+            # it was written to remove, so the endings are normalised before
+            # anything is matched and the release is written with LF.
+            text = raw.decode("utf-8", errors="replace").replace(CR_LF, LF)
+            text, hits = scrub(text)
             data = text.encode("utf-8")
             if hits:
                 scrubbed += 1
