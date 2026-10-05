@@ -144,7 +144,7 @@ def plan() -> list[tuple[Path, Path, str]]:
 
 # Published by hand and kept: they have no source in the working tree.
 KEEP = {Path("README.md"), Path("LICENSE"), Path("CITATION.cff"),
-        Path(".gitignore")}
+        Path(".gitignore"), Path(".gitattributes")}
 
 
 def orphans() -> list[Path]:
