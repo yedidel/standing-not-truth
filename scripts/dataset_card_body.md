@@ -43,6 +43,7 @@ rows: <!--SKIPPED-->. Both are present as files.
 ## Layout
 
 ```
+LIMITATIONS.md     all 34 limitations, with their states
 data/
   ledger.jsonl     every metered call, one row each
   labels.jsonl     every hand label, one row each
@@ -62,6 +63,19 @@ Forty-seven directories hold a `RESULTS.md`. The five that do not are
 (`run/RUN_REPORT.md`, with the panel's reported numbers in
 `B37_relabel/RESULTS.md`), and `B28_multi_span`, which holds stored rows and no
 write-up because nothing in the paper rests on it.
+
+## Limitations
+
+`LIMITATIONS.md` holds every limitation this work recorded, 34 of them, each
+with its state and, where one exists, the measurement that settled it. None is
+open. The paper's Limitations section carries the load-bearing entries; this is
+all of them, including the two pre-registered theses our own experiments
+refuted.
+
+The ids are not contiguous with the order the limitations were recorded in.
+Five were added later and given ids an earlier block already held; they are
+`L30` to `L34`. Two result files here, `B19` and `B27`, cite `L21` and `L22` in
+the earlier sense, so the earlier block kept its numbers.
 
 ## How to read a result
 

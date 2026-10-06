@@ -26,6 +26,12 @@ the project directory, the vendored harness, the interpreter, and with them a
 user account name. The frames are worth keeping, so only the prefix is
 replaced, and the module and line number of every frame survive.
 
+**The limitations register is published, and it is not retyped.** The paper
+says a register of every limitation this work recorded ships with the artifact,
+so it does. It lives in the project's design document, which is a working file
+and stays unpublished; only the register is lifted out of it, here, so the
+published copy cannot drift from the one the project keeps.
+
 **Two tables under `data/` are derived, and the originals stay.** The Hub's
 viewer reads one file with one schema. The ledgers carry two schemas across 27
 files and a nested `meta`, and the hand labels are dictionaries keyed by unit,
@@ -61,7 +67,10 @@ LF = chr(10)
 KEEP_SUFFIX = {".json", ".jsonl", ".md", ".txt", ".csv"}
 
 SKIP_DIRS = {"__pycache__", ".git", ".pytest_cache", ".ipynb_checkpoints",
-             "node_modules"}
+             "node_modules",
+             # the Hub's uploader keeps its resume state here. Sweeping it away
+             # as a stray costs a restarted upload of nine thousand files.
+             ".cache"}
 SKIP_SUFFIX = {".pyc", ".pyo", ".bak", ".log"}
 # A stray key is never published, whatever the manifest says.
 SKIP_NAMES = {".env", "key.txt", "openrouter_key.txt"}
@@ -158,6 +167,44 @@ def scrub(text: str, tidy: bool = True) -> tuple[str, int]:
     out = re.sub(r" +([.,;:])", r"\1", out)
     out = re.sub(r"[ \t]+$", "", out, flags=re.MULTILINE)
     return out, n
+
+
+DESIGN = ROOT / "RESEARCH-DESIGN.md"
+REGISTER_HEAD = "## Gate 9"
+REGISTER_END = "## Gate 10"
+
+
+def derive_limitations() -> tuple[str, int]:
+    """Lift the register out of the design document, and nothing else."""
+    text = DESIGN.read_text(encoding="utf-8")
+    lines = text.split(NL)
+    try:
+        a = next(i for i, l in enumerate(lines) if l.startswith(REGISTER_HEAD))
+        b = next(i for i, l in enumerate(lines)
+                 if i > a and l.startswith(REGISTER_END))
+    except StopIteration:
+        raise SystemExit(f"ERROR: no limitations register in {DESIGN}")
+    body = NL.join(lines[a + 1:b]).strip()
+    # The section opens on the design review's own verdict, which is about how
+    # the project was run rather than about any limitation. The register starts
+    # at its table.
+    if not body.startswith("|"):
+        body = body[body.index(NL + "|") + 1:]
+    rows = sum(1 for l in lines[a:b]
+               if re.match(r"^\|\s*\*{0,2}L[0-9]+", l))
+    head = (
+        "# Limitations register" + NL * 2 +
+        "Every limitation this work recorded, with its state and, where one "
+        "exists, the" + NL +
+        "measurement that settled it. The paper's Limitations section carries "
+        "the" + NL +
+        "load-bearing entries; this is all of them." + NL * 2 +
+        "Lifted from the project's design document by "
+        "`scripts/build_data_release.py`," + NL +
+        "so it cannot drift from the register the project keeps." + NL * 2 +
+        "---" + NL * 2)
+    scrubbed, _ = scrub(head + body + NL)
+    return scrubbed, rows
 
 
 LEDGER_COLUMNS = ["exp", "unit_id", "model", "provider", "status", "ts",
@@ -279,11 +326,12 @@ def main() -> int:
     # The flattened views. They have no single source file, so they are
     # written here and named so the sweep below does not take them for strays.
     derived = {}
-    for name, build in (("ledger.jsonl", derive_ledger),
-                        ("labels.jsonl", derive_labels)):
+    for name, build in (("data/ledger.jsonl", derive_ledger),
+                        ("data/labels.jsonl", derive_labels),
+                        ("LIMITATIONS.md", derive_limitations)):
         text, count = build()
-        derived[Path("data") / name] = count
-        dst = DEST / "data" / name
+        derived[Path(name)] = count
+        dst = DEST / name
         data = text.encode("utf-8")
         if not (dst.exists() and dst.read_bytes() == data):
             written += 1
