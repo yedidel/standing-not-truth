@@ -176,6 +176,15 @@ REGISTER_END = "## Gate 10"
 
 def derive_limitations() -> tuple[str, int]:
     """Lift the register out of the design document, and nothing else."""
+    # The design document is a working file and is published in neither
+    # release, so a reader running this from the code release will not have it.
+    # Say so plainly instead of failing on a missing path.
+    if not DESIGN.is_file():
+        raise SystemExit(
+            f"ERROR: {DESIGN.name} is not here, so the limitations register "
+            f"cannot be built. It is a working file and ships in neither "
+            f"release; the register it holds is published as LIMITATIONS.md "
+            f"in the data release.")
     text = DESIGN.read_text(encoding="utf-8")
     lines = text.split(NL)
     try:
