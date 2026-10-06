@@ -31,7 +31,7 @@ So three things are measured here, blind in both arms:
 
 `gpt-oss:120b` on Ollama Cloud, no metered cost, resumable. **One decider.**
 `B19`'s 144 spans two deciders; the second is metered and extending this run to
-it needs an approval under working-agreement 1, so the attack arm here is
+it needs a written approval to spend, so the attack arm here is
 `B13`'s `gpt-oss:120b` half and is reported as such rather than printed beside
 a 144.
 """

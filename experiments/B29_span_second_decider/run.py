@@ -33,7 +33,7 @@ rather than called, which is what keeps the estimate under a dollar.
 **Approved by the author on 2026-09-19 against an estimate of ~$0.50 and a cap
 of $1.50**, at the per-call rate of $0.000342 measured over 1,563 prior calls
 to this model. The key is read from `OPENROUTER_API_KEY` and never written to
-disk, per working agreement 7.
+disk.
 """
 
 from __future__ import annotations

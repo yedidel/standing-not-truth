@@ -72,6 +72,9 @@ TREES = (
 )
 
 CODE_SUFFIX = {".py", ".sh"}
+# Published although it is not code: the build scripts read it, so a reader who
+# runs them without it gets a crash rather than a release.
+ALSO = {("scripts", Path("dataset_card_body.md"))}
 SKIP_DIRS = {"__pycache__", ".git", ".pytest_cache", ".ipynb_checkpoints"}
 # Never copied and never removed; everything else in SKIP_DIRS that reaches the
 # destination is stale and gets cleaned. A `.pyc` carries the absolute path it
@@ -87,6 +90,8 @@ def wanted(rel: Path, tree: Tree) -> bool:
         return False
     if rel.suffix in SKIP_SUFFIX or rel.name in SKIP_NAMES:
         return False
+    if (tree.dst, rel) in ALSO:
+        return True
     if rel.suffix not in CODE_SUFFIX:
         return False
     if tree.subset and not any(rel == s or s in rel.parents

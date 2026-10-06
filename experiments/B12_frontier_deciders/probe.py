@@ -131,7 +131,7 @@ def main() -> None:
 
     (HERE / "rows.json").write_text(
         json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
-    print("\nNothing scored here. Every reply is read by hand, per rule 2.")
+    print("\nNothing scored here. Every reply is read by hand.")
 
 
 if __name__ == "__main__":

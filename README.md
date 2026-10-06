@@ -12,7 +12,7 @@ other to check what came back.
 
 | | |
 |---|---|
-| here | 51 experiment directories, 131 Python files, 2 fetch scripts, the vendored harness |
+| here | 51 experiment directories, 132 Python files, 2 fetch scripts, the vendored harness |
 | data release | every stored response, both label passes, the ledgers and the per-experiment result files, at https://huggingface.co/datasets/anonymos-2321135/standing-not-truth |
 
 ---
@@ -41,8 +41,10 @@ vendor/          the model-call harness (ledger, Ollama and OpenRouter
                  clients), vendored from the authors' A-VIP artifact so this
                  repository runs on its own
 scripts/         fetch_attriguard.sh and fetch_camel.sh, for the two
-                 dependencies not shipped here; sync_release.py, which built
-                 this tree
+                 dependencies not shipped here. sync_release.py builds this
+                 tree, build_data_release.py builds the data release, and
+                 build_dataset_card.py writes that release's dataset card
+                 with its subset list taken from the tree rather than typed
 ```
 
 `experiments/harness_path.py` resolves the harness in either tree, so nothing
@@ -55,7 +57,9 @@ the data release and need it present to do anything.
 
 ### Requirements
 
-- Python 3.11 or later, standard library only for the harness
+- Python 3.11 or later, standard library only for the harness and for every
+  experiment. `scripts/build_dataset_card.py` needs `pyarrow`, because it
+  checks that each table it declares really loads as one; nothing else does.
 - [Ollama](https://ollama.com) for the open-weight deciders (`gpt-oss:120b`,
   `glm-5.3`, `mistral-large-3:675b`)
 - An OpenRouter API key for the closed-weight arms, exported as an environment

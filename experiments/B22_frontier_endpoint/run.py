@@ -16,13 +16,13 @@ resistance shows up**, which is a finding rather than a disappointment.
 
 ## Cost discipline
 
-Approved 2026-09-17 for both deciders, estimate $3.48, ceiling $7.00
-(`APPROVAL-REQUEST-B22.md`). This script:
+Approved 2026-09-17 for both deciders, estimate $3.48, ceiling $7.00.
+This script:
 
-  1. **checks the balance before any call**, per rule 7, and stops if it cannot
+  1. **checks the balance before any call** and stops if it cannot
   2. stops the moment cumulative cost reaches the ceiling
   3. is resumable, so a stop costs nothing but the calls already made
-  4. reports actual against estimate at the end, per rule 1
+  4. reports actual against estimate at the end
 
 Nothing is installed. The tool is declared and the argument recorded.
 """

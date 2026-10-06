@@ -31,8 +31,7 @@ does. **The estimate was wrong by a factor of three for one reason worth
 recording**: `glm-5.3` is a reasoning model and spends about 640 output tokens
 deciding a one-word answer, which at $2.64 per million makes the checker 47
 times dearer per call than the decider it protects. The key is read
-from `OPENROUTER_API_KEY` and never written to disk, per working agreement 7,
-and the balance is printed before and after.
+from `OPENROUTER_API_KEY` and never written to disk.
 
 B-20 ran these same two models on Ollama Cloud, whose monthly quota was
 exhausted before this experiment, so there the checker cost nothing and its

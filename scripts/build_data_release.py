@@ -26,15 +26,24 @@ the project directory, the vendored harness, the interpreter, and with them a
 user account name. The frames are worth keeping, so only the prefix is
 replaced, and the module and line number of every frame survive.
 
+**Two tables under `data/` are derived, and the originals stay.** The Hub's
+viewer reads one file with one schema. The ledgers carry two schemas across 27
+files and a nested `meta`, and the hand labels are dictionaries keyed by unit,
+so neither loads as it stands. `data/ledger.jsonl` and `data/labels.jsonl`
+are flattened views of exactly those files, built here, not by hand. The
+per-experiment originals under `experiments/` remain the record.
+
 The scrub replaces whole phrases, never fragments. An earlier version matched
-``balance (before|after)`` and stopped at the first period, which falls inside
-``$23.3683``. It cut the amount in half and published the remainder. Every
-pattern below therefore ends on something that cannot occur inside an amount.
+``balance (before|after)`` and stopped at the first period. A period falls
+inside every amount, so it cut the figure in half and published the remainder.
+Every pattern below therefore ends on something that cannot occur inside an
+amount.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import shutil
 import sys
@@ -45,6 +54,7 @@ SRC = ROOT / "experiments"
 DEST = ROOT / "dist" / "huggingface"
 
 CR_LF = chr(13) + chr(10)
+NL = chr(10)
 LF = chr(10)
 
 # Data, and the per-experiment record needed to read it.
@@ -150,6 +160,78 @@ def scrub(text: str, tidy: bool = True) -> tuple[str, int]:
     return out, n
 
 
+LEDGER_COLUMNS = ["exp", "unit_id", "model", "provider", "status", "ts",
+                  "tokens_in", "tokens_out", "cost_usd", "cum_cost_usd",
+                  "response_path", "response_sha256", "backfilled", "error",
+                  "note", "traceback"]
+
+
+def derive_ledger() -> tuple[str, int]:
+    """Every call record as one table.
+
+    `balance_after` is dropped: it is an account balance by name and is empty
+    in all 12,340 records. `meta` is replaced by the traceback it holds, as a
+    string, because a nested object whose shape varies between records defeats
+    schema inference.
+    """
+    out, n = [], 0
+    for ledger in sorted(SRC.rglob("*.jsonl")):
+        for line in ledger.read_text(encoding="utf-8",
+                                     errors="replace").splitlines():
+            if not line.strip():
+                continue
+            rec = json.loads(line)
+            meta = rec.get("meta") or {}
+            tb = meta.get("traceback") if isinstance(meta, dict) else None
+            rec["traceback"] = tb
+            row = {k: rec.get(k) for k in LEDGER_COLUMNS}
+            out.append(json.dumps(row, ensure_ascii=False))
+            n += 1
+    # built from the working tree, so the redaction has not been applied yet
+    text, _ = redact_paths(NL.join(out) + NL)
+    return text, n
+
+
+def derive_labels() -> tuple[str, int]:
+    """Every hand label as one table, one row per labelled item.
+
+    Three of the four files map a unit key to a label string; the fourth also
+    carries the stratum the item was drawn from. The union is published, with
+    the fields the simpler files do not have left empty.
+    """
+    extra = ["task", "source", "unit", "condition", "stratum"]
+    out, n = [], 0
+    for rel in sorted(SRC.glob("*/*.json")):
+        if "label" not in rel.name:
+            continue
+        payload = json.loads(rel.read_text(encoding="utf-8"))
+        if not isinstance(payload, dict):
+            continue
+        name = f"{rel.parent.name}/{rel.name}"
+        for key, value in payload.items():
+            if key.startswith("_"):      # a note about the pass, not a label
+                continue
+            base = {"pass": name, "key": key}
+            if isinstance(value, dict):
+                rows = [{**base, "position": None, "label": value.get("label"),
+                         **{k: value.get(k) for k in extra}}]
+            elif isinstance(value, list):
+                # one pass labelled several arms per unit and stored them in
+                # one list. Its own note gives the order; splitting keeps the
+                # column a string, which is what the Hub's viewer requires.
+                rows = [{**base, "position": i, "label": v,
+                         **{k: None for k in extra}}
+                        for i, v in enumerate(value)]
+            else:
+                rows = [{**base, "position": None, "label": value,
+                         **{k: None for k in extra}}]
+            for row in rows:
+                out.append(json.dumps(row, ensure_ascii=False))
+                n += 1
+    text, _ = redact_paths(NL.join(out) + NL)
+    return text, n
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true",
@@ -194,6 +276,21 @@ def main() -> int:
             dst.parent.mkdir(parents=True, exist_ok=True)
             dst.write_bytes(data)
 
+    # The flattened views. They have no single source file, so they are
+    # written here and named so the sweep below does not take them for strays.
+    derived = {}
+    for name, build in (("ledger.jsonl", derive_ledger),
+                        ("labels.jsonl", derive_labels)):
+        text, count = build()
+        derived[Path("data") / name] = count
+        dst = DEST / "data" / name
+        data = text.encode("utf-8")
+        if not (dst.exists() and dst.read_bytes() == data):
+            written += 1
+            if not args.check:
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                dst.write_bytes(data)
+
     # Anything in the destination with no source, except what is kept by hand.
     orphans = []
     if DEST.is_dir():
@@ -201,7 +298,8 @@ def main() -> int:
             if not path.is_file():
                 continue
             rel = path.relative_to(DEST)
-            if rel in KEEP_AT_DEST or any(p in SKIP_DIRS for p in rel.parts):
+            if (rel in KEEP_AT_DEST or rel in derived
+                    or any(p in SKIP_DIRS for p in rel.parts)):
                 continue
             if rel.parts[0] == "experiments" and \
                     (SRC / Path(*rel.parts[1:])).is_file():
@@ -212,6 +310,8 @@ def main() -> int:
     print(f"unchanged   : {unchanged}")
     print(f"scrubbed    : {scrubbed} result files carried a balance or a cap")
     print(f"redacted    : {redacted} ledger(s) carried a local path in a traceback")
+    for rel, count in derived.items():
+        print(f"derived     : {rel.as_posix()} ({count} rows)")
     print(f"no source   : {len(orphans)}")
     for path in orphans[:12]:
         print(f"  [orphan ] {path.relative_to(DEST)}")
@@ -220,6 +320,24 @@ def main() -> int:
 
     if args.check:
         return 1 if (written or orphans) else 0
+
+    stragglers = []
+    for path in sorted(DEST.rglob("*")):
+        if not path.is_file():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        if any(pattern.search(text) for pattern, _ in PATHS):
+            stragglers.append(path.relative_to(DEST))
+    if stragglers:
+        print(f"ERROR: {len(stragglers)} published file(s) name a local path:",
+              file=sys.stderr)
+        for rel in stragglers[:10]:
+            print(f"  {rel}", file=sys.stderr)
+        return 2
+    print("checked     : no published file names a local path")
 
     for path in orphans:
         path.unlink()
