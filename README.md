@@ -14,7 +14,7 @@ other to check what came back.
 
 | | |
 |---|---|
-| here | 56 experiment directories, 141 Python files, 2 fetch scripts, the vendored harness |
+| here | 57 experiment directories, 143 Python files, 2 fetch scripts, the vendored harness |
 | data release | every stored response, both label passes, the ledgers and the per-experiment result files, at https://huggingface.co/datasets/anonymos-2321135/standing-not-truth |
 
 ---
@@ -118,7 +118,7 @@ time of the run: the numbers, the denominators and the reading notes,
 **including the defects found in our own instruments and what was done about
 them**. Those files are the primary record; the paper is a selection from them.
 
-Fifty-two of the fifty-seven directories hold a `RESULTS.md`. The remaining
+Fifty-three of the fifty-eight directories hold a `RESULTS.md`. The remaining
 five are named here so nobody goes looking: `B14_annotator_agreement` uses
 `README.md`, `B2_binding_taxonomy` uses `TAXONOMY.md`, and `B35_model_panel`
 and `B36_extractor_transfer` keep a `run/RUN_REPORT.md` because the panel's
