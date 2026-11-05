@@ -47,7 +47,7 @@ MENTIONS  - if it only names `{other}` without claiming anything about it, or
 Answer:"""
 
 
-ENTRY = re.compile(r"^\s*\[\d+\]\s*$", re.M)
+ENTRY = re.compile(r"\s*\[\d+\]")
 
 
 def claimant_text(unit: dict, claimant: str) -> str:
@@ -60,6 +60,21 @@ def claimant_text(unit: dict, claimant: str) -> str:
     own record, answered ASSERTS, and the subject placement appeared to flag
     30% of natural units. Splitting on the entry markers and keeping the block
     whose `name:` is the claimant removes the artifact.
+
+    **Corrected 2026-11-05, and the first repair above was never in force.**
+    `ENTRY` was anchored, `^\s*\[\d+\]\s*$` with `re.M`, which requires the
+    marker to stand alone on its line. This corpus writes `[1] name: canonjson`,
+    marker and content together, so the split returned one part, the loop found
+    the claimant's name inside it, and the whole block went out capped at 900
+    characters. The fallback never fired, so nothing looked wrong. On 45 of the
+    72 attack units the payload sentence fell outside that cap and the verdict
+    was ASSERTS regardless. `B7_placement` held the working pattern all along.
+
+    **The stored `rows.json` was produced before this fix.** `B48_check_scope`
+    measures the gap on one provider: with the claim present the verdict is
+    72/72 ASSERTS under both versions, and with the claim removed it is 72/72
+    MENTIONS, so the check tracks the claim and no published figure moves. The
+    superseded version is in this repository's history.
     """
     block = unit["full"]
     parts = ENTRY.split(block)

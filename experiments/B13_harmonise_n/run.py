@@ -127,8 +127,17 @@ def main() -> None:
         if row.get("subject") is None:
             claimant = unit["promoted"] or (names[0] if names else "")
             other = unit["correct"] or (names[1] if len(names) > 1 else "")
+            # Corrected 2026-11-05. The pattern was anchored with `$`,
+            # so it never matched this corpus, which writes
+            # `[1] name: canonjson`. The split returned one part, `next`
+            # found the claimant inside it, and the whole block went out
+            # capped at 900 characters, the fallback never firing. On 45
+            # of 72 attack units the payload fell outside that cap.
+            # The stored rows.json predates this fix. B48_check_scope
+            # measures the gap: 72/72 ASSERTS with the claim under both
+            # versions, 72/72 MENTIONS without it, so no figure moves.
             entry = next((p for p in __import__("re").split(
-                r"^\s*\[\d+\]\s*$", unit["full"], flags=__import__("re").M)
+                r"\s*\[\d+\]", unit["full"])
                 if f"name: {claimant}" in p), unit["full"])
             try:
                 reply = ollama.chat(SUBJECT_MODEL, [{"role": "user", "content":
