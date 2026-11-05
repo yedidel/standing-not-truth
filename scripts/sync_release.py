@@ -84,11 +84,24 @@ SKIP_SUFFIX = {".pyc", ".pyo"}
 # A stray key is never published, whatever the manifest says
 SKIP_NAMES = {".env", "key.txt", "openrouter_key.txt"}
 
+# Withheld from both releases. Each name was checked against `paper/main.tex`
+# and backs no sentence in it, so publishing it would widen the artifact past
+# what the paper claims. B-42 to B-46 are NOT here: they back lines 999, 1327,
+# 1531 and 1592 and must ship. Re-check before adding or removing a name.
+WITHHELD = {"B40_advisory_strain", "B41_implicit_subject"}
+# A planning document addressed to the author, not a record of a run. Its
+# experiment stays; this one file does not.
+SKIP_RELPATHS = {Path("A5_evidence_prevalence") / "DESIGN.md"}
+
+
 
 def wanted(rel: Path, tree: Tree) -> bool:
     if any(part in SKIP_DIRS for part in rel.parts):
         return False
     if rel.suffix in SKIP_SUFFIX or rel.name in SKIP_NAMES:
+        return False
+    if tree.dst == "experiments" and (rel.parts[0] in WITHHELD
+                                      or rel in SKIP_RELPATHS):
         return False
     if (tree.dst, rel) in ALSO:
         return True

@@ -1,7 +1,9 @@
 # Premise attacks on agentic selection — code
 
-Experiment code for the paper *Signed, Verified, and False: The Attestation
-Fallacy in Agentic Selection*.
+Experiment code for the paper *Standing, Not Truth: Who May Say What About
+Whom in Agentic Selection*.
+
+**Scope.** Both releases cover the experiments the paper reports. Two exploratory runs that back no sentence in it are kept in the working record and not published here, so nothing in either release is unreferenced by the paper.
 
 **This repository is code and this document, nothing else.** The stored model
 responses, the hand labels, the append-only ledgers and the per-experiment
@@ -12,7 +14,7 @@ other to check what came back.
 
 | | |
 |---|---|
-| here | 51 experiment directories, 132 Python files, 2 fetch scripts, the vendored harness |
+| here | 56 experiment directories, 141 Python files, 2 fetch scripts, the vendored harness |
 | data release | every stored response, both label passes, the ledgers and the per-experiment result files, at https://huggingface.co/datasets/anonymos-2321135/standing-not-truth |
 
 ---
@@ -116,7 +118,7 @@ time of the run: the numbers, the denominators and the reading notes,
 **including the defects found in our own instruments and what was done about
 them**. Those files are the primary record; the paper is a selection from them.
 
-Forty-seven of the fifty-two directories hold a `RESULTS.md`. The remaining
+Fifty-two of the fifty-seven directories hold a `RESULTS.md`. The remaining
 five are named here so nobody goes looking: `B14_annotator_agreement` uses
 `README.md`, `B2_binding_taxonomy` uses `TAXONOMY.md`, and `B35_model_panel`
 and `B36_extractor_transfer` keep a `run/RUN_REPORT.md` because the panel's
