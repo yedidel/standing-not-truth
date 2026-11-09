@@ -53,11 +53,7 @@ deciders.
 
 **A model where the attack never lands is not evidence for the defense** and is
 reported as such: protection is only measurable where there is something to
-protect against.
-
-Approved by the author 2026-09-22 at an estimate of $1.47 and a cap of $3.00;
-the third arm raises the estimate, which is printed before any call is made and
-enforced by the runner. Key from `OPENROUTER_API_KEY`, never written to disk.
+protect against. Key from `OPENROUTER_API_KEY`, never written to disk.
 """
 
 from __future__ import annotations

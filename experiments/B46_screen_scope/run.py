@@ -59,9 +59,7 @@ object each published number came from.
 
 216 screen calls on `google/gemini-3.1-flash-lite`. `B30`'s ledger of 850
 gives $0.000222 per call measured, so **$0.048**. `B31` sized the same call at
-$0.000342, which would give $0.074. Estimate **$0.08**, cap **$0.30**.
-
-Approved by the author 2026-11-04. Key from `OPENROUTER_API_KEY`, never
+$0.000342, which would give $0.074. Estimate **$0.08**, cap **$0.30**. Key from `OPENROUTER_API_KEY`, never
 written to disk.
 
 Every reply is read by hand. No regular expression decides an outcome.

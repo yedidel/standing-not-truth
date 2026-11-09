@@ -22,12 +22,7 @@ Five stages:
                condition, since here the two are the same prompt
     check      the subject check over the promoted item's text
     localise   the sentence localizer over the listing
-    sentence   decide again with only the localized span removed
-
-**Approved by the author on 2026-09-24**, first against an estimate of ~$0.14
-and a cap of $0.50, then without a ceiling once that estimate proved wrong; the
-cap is held at $2.00 here because an uncapped run is not a thing this project
-does. **The estimate was wrong by a factor of three for one reason worth
+    sentence   decide again with only the localized span removed **The estimate was wrong by a factor of three for one reason worth
 recording**: `glm-5.3` is a reasoning model and spends about 640 output tokens
 deciding a one-word answer, which at $2.64 per million makes the checker 47
 times dearer per call than the decider it protects. The key is read

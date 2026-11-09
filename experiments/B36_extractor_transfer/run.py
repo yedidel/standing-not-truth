@@ -31,8 +31,7 @@ Wilson interval, in which case the $0.9\%$ is a property of `glm-5.3` and the
 paper must say so.
 
 `qwen/qwen3.7-flash` screens, `google/gemini-3.1-flash-lite` re-asks.
-**646 + 150 = 796 calls, estimate under $0.15.** Approved by the
-author 2026-09-22. Key from `OPENROUTER_API_KEY`, never written to disk.
+**646 + 150 = 796 calls, estimate under $0.15.** Key from `OPENROUTER_API_KEY`, never written to disk.
 """
 
 from __future__ import annotations

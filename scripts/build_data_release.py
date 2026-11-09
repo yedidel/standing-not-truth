@@ -75,14 +75,22 @@ SKIP_SUFFIX = {".pyc", ".pyo", ".bak", ".log"}
 # A stray key is never published, whatever the manifest says.
 SKIP_NAMES = {".env", "key.txt", "openrouter_key.txt"}
 
-# Withheld from both releases. Each name was checked against `paper/main.tex`
-# and backs no sentence in it, so publishing it would widen the artifact past
-# what the paper claims. B-42 to B-46 are NOT here: they back lines 999, 1327,
-# 1531 and 1592 and must ship. Re-check before adding or removing a name.
-WITHHELD = {"B40_advisory_strain", "B41_implicit_subject"}
-# A planning document addressed to the author, not a record of a run. Its
-# experiment stays; this one file does not.
-SKIP_RELPATHS = {Path("A5_evidence_prevalence") / "DESIGN.md"}
+# Withheld from both releases. A name belongs here only while it backs no
+# sentence in `paper/main.tex` or `paper/supplement.tex`, since publishing it
+# would widen the artifact past what the paper claims. The set is empty:
+# B-40 now backs the authority-set result in `Deploying this` and all of
+# supplement S1, and B-41 backs the rule-transform paragraph in E5 and all of
+# supplement S2. `sync_release.py` keeps its own copy of this set, and the two
+# must agree. Re-check both before adding or removing a name.
+WITHHELD: set[str] = set()
+# `DESIGN.md` is a planning document addressed to the author and not a record
+# of a run: it carries cost estimates, account balances, what an earlier draft
+# of itself got wrong, and decisions the author was asked to make. One of them
+# described the state of a credential. The experiment ships, its design file
+# does not, and `RESULTS.md` carries everything a reader needs. This is a rule
+# on the name so that a design file added later is covered without an edit.
+SKIP_NAME_ANY = {"DESIGN.md"}
+SKIP_RELPATHS: set[Path] = set()
 
 
 # Written by hand in the destination and kept across rebuilds.
@@ -98,6 +106,13 @@ SCRUB = [
                 re.MULTILINE), ""),
     # the paragraph naming the key, its remaining credit and its predecessor
     (re.compile(r"Balance on the supplied key(?:[^\n]*\n)+?\n"), ""),
+    # The form above names "the supplied key" and B-40 wrote "the key at
+    # approval", which the pattern missed and the code release published. Any
+    # balance "on" or "at" something, in one sentence, is taken now.
+    # `[^.]` rather than `[^.\n]`: this sentence wraps, and the first attempt
+    # at it failed on exactly that.
+    (re.compile(rf"\s*Balance\s+(?:on|at)\s+[^.]{{0,60}}?"
+                rf"(?:was|is|:)\s*{AMOUNT}\.?"), ""),
     # "Balance before $X, after $Y."  and  "Balance before the run: $X."
     (re.compile(rf"\s*Balance\s+before(?:\s+the\s+run)?:?\s*{AMOUNT}"
                 rf"(?:,\s*after\s*{AMOUNT})?\.?"), ""),
@@ -106,6 +121,16 @@ SCRUB = [
     # sentences that state a pre-registered falsifier are left alone.
     (re.compile(r"\s*Approved for (?:both|the) decider[s]? in\s*"
                 r"`APPROVAL-REQUEST-[^`]*`\.?"), ""),
+    # "Approved by the author on <date> against an estimate of $X and a cap of
+    # $Y, ..." in twelve run scripts. The working tree keeps the record; the
+    # release does not carry who authorised a spend or what it was expected to
+    # cost. `\s+` spans a line break and `\.(?=\d)` keeps a period inside a
+    # dollar amount from ending the sentence: two scripts wrap mid-phrase and
+    # the first attempt at this missed both.
+    (re.compile(r"\s*\*{0,2}Approved\s+by\s+the\s+author\*{0,2}"
+                r"(?:[^.]|\.(?=\d))*\."), ""),
+    (re.compile(r"\s*It\s+was\s+approved\s+separately"
+                r"(?:[^.]|\.(?=\d))*\."), ""),
     # a spend cap, in each of the three shapes the result files use
     (re.compile(rf"\s+against a {AMOUNT} cap[;,]"), ","),
     # where the cap itself explains an outcome, keep the fact, drop the amount
@@ -145,6 +170,8 @@ def wanted(rel: Path) -> bool:
     if any(part in SKIP_DIRS for part in rel.parts):
         return False
     if rel.suffix in SKIP_SUFFIX or rel.name in SKIP_NAMES:
+        return False
+    if rel.name in SKIP_NAME_ANY:
         return False
     if rel.parts[0] in WITHHELD or rel in SKIP_RELPATHS:
         return False

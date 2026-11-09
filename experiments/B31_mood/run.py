@@ -21,7 +21,7 @@ instrument needs validating. Each is derived from the payload sentence the
 ablation already identifies, which is why the ground truth is free.
 
 `google/gemini-3.1-flash-lite`, metered. **72 units x 3 moods x 2 calls = 432,
-estimate ~$0.15.** Approved by the author 2026-09-20. Key from
+estimate ~$0.15.** Key from
 `OPENROUTER_API_KEY`, never written to disk.
 """
 

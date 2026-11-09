@@ -88,7 +88,7 @@ SKIP_NAMES = {".env", "key.txt", "openrouter_key.txt"}
 # and backs no sentence in it, so publishing it would widen the artifact past
 # what the paper claims. B-42 to B-46 are NOT here: they back lines 999, 1327,
 # 1531 and 1592 and must ship. Re-check before adding or removing a name.
-WITHHELD = {"B40_advisory_strain", "B41_implicit_subject"}
+WITHHELD: set[str] = set()   # B40 and B41 are cited by the supplement, so both ship
 # A planning document addressed to the author, not a record of a run. Its
 # experiment stays; this one file does not.
 SKIP_RELPATHS = {Path("A5_evidence_prevalence") / "DESIGN.md"}
@@ -123,11 +123,12 @@ def walk(tree: Tree) -> list[Path]:
 def published_bytes(src: Path) -> bytes:
     """What this source file looks like once published.
 
-    A docstring that records an account balance or a spend cap is the author's
-    billing position, not a measurement, and it is removed here exactly as it
-    is removed from the data release. The estimate and the approval date stay:
-    those are the pre-registration. A scrubbed script that no longer parses is
-    a defect, so it is checked rather than assumed.
+    A docstring that records an account balance, a spend cap, who authorised a
+    spend or what it was expected to cost is the author's billing position and
+    not a measurement, and it is removed here exactly as it is removed from the
+    data release. The pre-registered falsifier stays, since that is the claim
+    the run could have refuted. A scrubbed script that no longer parses is a
+    defect, so it is checked rather than assumed.
     """
     raw = src.read_bytes()
     if src.suffix != ".py":

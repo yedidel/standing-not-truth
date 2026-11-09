@@ -39,9 +39,7 @@ read, and the report says how many are waiting.
 
     574 calls per decider, 1,148 in all, of which only gemini's are metered
     at the $0.000342 measured over B29's 3,054 calls to it.
-    **Estimate $0.20.**
-
-Approved by the author on 2026-11-03. The OpenRouter key is read from
+    **Estimate $0.20.** The OpenRouter key is read from
 `OPENROUTER_API_KEY` and the Ollama key from `OLLAMA_API_KEY`; neither is
 written to disk, and the balance is checked before the first metered call.
 """

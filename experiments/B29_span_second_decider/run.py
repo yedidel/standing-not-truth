@@ -28,11 +28,7 @@ rather than called, which is what keeps the estimate under a dollar.
     loc1        localise, every unit
     dec_single  decide, round-1 span removed        (only where one was removed)
     loc2, loc3  localise again on what is left      (only where the last one hit)
-    dec_multi   decide, every span removed          (only where rounds >= 2)
-
-**Approved by the author on 2026-09-19 against an estimate of ~$0.50 and a cap
-of $1.50**, at the per-call rate of $0.000342 measured over 1,563 prior calls
-to this model. The key is read from `OPENROUTER_API_KEY` and never written to
+    dec_multi   decide, every span removed          (only where rounds >= 2) The key is read from `OPENROUTER_API_KEY` and never written to
 disk.
 """
 

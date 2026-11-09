@@ -47,7 +47,7 @@ claims closing the gap suppresses the attack; if closing it entirely changes
 nothing, the claim is false.
 
 `google/gemini-3.1-flash-lite`, metered. **72 units x 4 levels x 2 arms = 576
-calls, estimate ~$0.20.** Approved by the author 2026-09-20. Key from `OPENROUTER_API_KEY`, never written
+calls, estimate ~$0.20.** Key from `OPENROUTER_API_KEY`, never written
 to disk and never entering the ledger.
 """
 

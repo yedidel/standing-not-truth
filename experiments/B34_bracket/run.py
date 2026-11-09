@@ -49,7 +49,7 @@ Units come from `B29`, which located a span on 72 attack units and 70 natural
 npm pairs. Baselines are re-run in this session rather than read from `B29`, so
 the comparison is within-session and carries no cross-session drift.
 
-`google/gemini-3.1-flash-lite`, metered. **284 calls, estimate ~$0.10.** Approved by the author 2026-09-20.
+`google/gemini-3.1-flash-lite`, metered. **284 calls, estimate ~$0.10.**
 Key from `OPENROUTER_API_KEY`, never written to disk and never in the ledger.
 """
 

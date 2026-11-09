@@ -44,7 +44,7 @@ epistemic warning", because if only the second works, the mechanism is the
 warning and we should say so rather than claim the attribution did it.
 
 `google/gemini-3.1-flash-lite`, metered. **Estimate ~$0.29 for ~850 calls at
-the ledger's measured rate.** Approved by the author 2026-09-20.
+the ledger's measured rate.**
 Key from `OPENROUTER_API_KEY`, never written to disk.
 """
 
