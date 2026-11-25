@@ -34,12 +34,18 @@ append-only; the response store is keyed by unit id and is not.
               asserted. An earlier record with no such partner is a real
               defect and is reported.
 
-  empty       fifteen `claude-opus-5` units returned no content. The harness
-              recorded `status: ok` with zero tokens and never wrote the file,
-              so resume could not reach them; `retry_empties.py` asked them
-              again under a `|retry` unit id and both records remain. A
-              record whose file is absent is accounted for when the retry is
-              present in the same ledger.
+  empty       a unit returned no content. The harness recorded `status: ok`
+              with zero tokens and either never wrote the file or wrote the
+              first attempt somewhere the record does not name, so resume
+              could not reach it. The unit was asked again and both records
+              remain. **Two retry id conventions are in use**, and a reader
+              who knows only one concludes the artifact lost a response:
+              `B35/retry_empties.py` writes `<uid>|retry`, while
+              `B55/run.py` writes `retry|<uid>` and preserves the first
+              attempt under `run/raw/errored/<unit>.attempt1.json`. Both are
+              matched here. A record whose file is absent at the named path
+              is accounted for when either form of the retry is present in
+              the same ledger.
 
 The exit status follows the unexplained count alone.
 """
@@ -130,8 +136,15 @@ def main() -> None:
             continue
 
         if actual[path] is None:
-            # never written; accounted for only if the unit was asked again
-            if f"{record.get('unit_id')}|retry" in unit_ids[ledger]:
+            # never written, or written somewhere this record does not name;
+            # accounted for only if the unit was asked again. Two retry id
+            # conventions are in use and both are load-bearing: B35's
+            # `retry_empties.py` suffixes the unit id, B55's `run.py` prefixes
+            # it and keeps the first attempt under `raw/errored/`. Matching
+            # only one convention reported B55's preserved attempt as missing.
+            uid = record.get("unit_id")
+            if (f"{uid}|retry" in unit_ids[ledger]
+                    or f"retry|{uid}" in unit_ids[ledger]):
                 emptied += 1
             else:
                 unexplained.append((record, "live", path, "file absent"))

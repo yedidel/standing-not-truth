@@ -265,7 +265,7 @@ def derive_ledger() -> tuple[str, int]:
     """Every call record as one table.
 
     `balance_after` is dropped: it is an account balance by name and is empty
-    in all 12,340 records. `meta` is replaced by the traceback it holds, as a
+    in all 19,184 records. `meta` is replaced by the traceback it holds, as a
     string, because a nested object whose shape varies between records defeats
     schema inference.
     """
