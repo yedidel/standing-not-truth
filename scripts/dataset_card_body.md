@@ -116,11 +116,11 @@ the stored raw response**. `verify_ledger.py` in the code release checks them
 and classifies what it finds:
 
 ```
-ledger records examined : 12340
-  digest verified       : 9863
+ledger records examined : 19184
+  digest verified       : 16490
   superseded by a retry : 1688
-  empty, asked again    :   29
-  no digest stored      :  760
+  empty, asked again    :   30
+  no digest stored      :  976
   UNEXPLAINED           :    0
 ```
 
@@ -134,10 +134,14 @@ the response store is keyed by unit id and is not. When a unit was called twice
 the second response overwrote the first file, so the earlier record's digest
 can never match again. A superseded record counts as accounted for only when a
 later record over the same file matches the file as it now stands; one with no
-such partner is reported as unexplained. The 29 are fifteen `claude-opus-5`
-units that returned no content, which the harness recorded as `ok` with zero
-tokens without writing a file, and which `retry_empties.py` asked again under a
-`|retry` unit id. The 760 without a digest are calls that failed outright.
+such partner is reported as unexplained. The 30 are units that returned no
+content, which the harness recorded as `ok` with zero tokens without writing a
+file, and which were asked again. **Two retry id conventions are in use and
+the verifier matches both**: `B35`'s `retry_empties.py` suffixes the unit id
+as `<uid>|retry`, while `B55`'s `run.py` prefixes it as `retry|<uid>` and keeps
+the first attempt under `run/raw/errored/<unit>.attempt1.json`. Matching one
+convention alone reports a preserved response as lost. The 976 without a digest
+are calls that failed outright.
 
 Some stored responses contain an opaque encrypted `data` field. That is the
 provider's own encrypted reasoning payload, kept as returned so the digests

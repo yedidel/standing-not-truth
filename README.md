@@ -181,11 +181,11 @@ mismatches on every record. The script handles both, and it classifies what it
 finds rather than reporting a bare count:
 
 ```
-ledger records examined : 12340
-  digest verified       : 9863
+ledger records examined : 19184
+  digest verified       : 16490
   superseded by a retry : 1688
-  empty, asked again    :   29
-  no digest stored      :  760
+  empty, asked again    :   30
+  no digest stored      :  976
   UNEXPLAINED           :    0
 ```
 
@@ -198,11 +198,15 @@ over the same file matches the file as it now stands, and an earlier record
 with no such partner is reported as unexplained. Most of the 1,688 come from
 the thirteen-model panel, where rate limits forced long retry passes.
 
-The 29 are fifteen `claude-opus-5` units that returned no content. The harness
-recorded them as `ok` with zero tokens and never wrote a file, which also made
-them invisible to resume, so `retry_empties.py` asked them again under a
-`|retry` unit id. Both records stay in the ledger. The 760 without a digest are
-calls that failed outright and produced no response to hash.
+The 30 are units that returned no content. The harness recorded them as `ok`
+with zero tokens and never wrote a file, which also made them invisible to
+resume, so they were asked again. **Two retry id conventions are in use and the
+verifier matches both**: `B35`'s `retry_empties.py` suffixes the unit id as
+`<uid>|retry`, while `B55`'s `run.py` prefixes it as `retry|<uid>` and keeps
+the first attempt under `run/raw/errored/<unit>.attempt1.json`. Matching one
+convention alone reports a preserved response as lost. Both records stay in the
+ledger. The 976 without a digest are calls that failed outright and produced no
+response to hash.
 
 No reported number is affected by any of this: every figure was computed from
 the surviving file.
