@@ -147,7 +147,13 @@ SCRUB = [
 # because the line is JSON. Matching that escaped form is what keeps this
 # away from model prose, which never writes a path that way. The account
 # name is matched, never written: this file is itself published.
-SEP = re.escape(chr(92) * 2)
+# A Windows path reaches this tree in three forms and the gate has to see
+# all of them: JSON-escaped inside a stored traceback (two backslashes),
+# written in a Python or Markdown source file (one), and typed with
+# forward slashes. Matching only the first is what let a script carrying
+# an absolute scratchpad root into the code release pass both gates.
+# The two-backslash form is listed first so it wins the alternation.
+SEP = f"(?:{re.escape(chr(92) * 2)}|{re.escape(chr(92))}|/)"
 SEGMENT = "[A-Za-z0-9._-]+"
 PATHS = [
     (re.compile(f"[A-Za-z]:{SEP}Users{SEP}{SEGMENT}{SEP}AppData{SEP}Local"

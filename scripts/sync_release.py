@@ -193,6 +193,36 @@ def missing_sources() -> list[Tree]:
     return [t for t in TREES if not t.src.is_dir()]
 
 
+def local_paths_gate() -> int:
+    """Refuse to leave a published file naming a local path.
+
+    The data release has had this gate since it began, and the code release
+    had none: a script written in a scratchpad against an absolute root was
+    copied in verbatim and published. It uses `build_data_release.PATHS`
+    rather than its own patterns, so the two releases cannot disagree about
+    what counts as a local path, and it runs under `--check` too, because a
+    gate that only fires when it is already too late is not a gate.
+    """
+    stragglers = []
+    for path in sorted(DEST.rglob("*")):
+        if not path.is_file():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        if any(pattern.search(text) for pattern, _ in build_data_release.PATHS):
+            stragglers.append(path.relative_to(DEST))
+    if stragglers:
+        print(f"ERROR: {len(stragglers)} published file(s) name a local path:",
+              file=sys.stderr)
+        for rel in stragglers[:10]:
+            print(f"  {rel}", file=sys.stderr)
+        return 2
+    print("checked: no published file names a local path")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true",
@@ -231,7 +261,8 @@ def main() -> int:
             print("  (run with --prune to remove them)")
 
     if args.check:
-        return 1 if (jobs or extra) else 0
+        gate = local_paths_gate()
+        return gate if gate else (1 if (jobs or extra) else 0)
 
     for src, dst, _ in jobs:
         dst.parent.mkdir(parents=True, exist_ok=True)
@@ -246,7 +277,7 @@ def main() -> int:
             if not any(d.iterdir()):
                 d.rmdir()
         print(f"removed {len(extra)} file(s) with no source")
-    return 0
+    return local_paths_gate()
 
 
 if __name__ == "__main__":
